@@ -1,16 +1,21 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
-interface Props {
-  children: React.ReactNode;
+// Define props type for clarity and type safety
+interface AuthGuardProps {
+  children: ReactNode;
 }
 
-const AuthGuard: React.FC<Props> = ({ children }) => {
-  const { user, loading } = useAuth();
+// Replace this with your actual authentication check logic
+const isAuthenticated = (): boolean => {
+  const token = localStorage.getItem("authToken");
+  return !!token;
+};
 
-  if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/login" replace />;
+const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
 
   return <>{children}</>;
 };
