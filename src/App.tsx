@@ -1,3 +1,13 @@
+import DefensiveTendencies from './pages/DefensiveTendencies';
+
+function App() {
+  return (
+    <div>
+      <DefensiveTendencies />
+    </div>
+  );
+}
+export default App;
 <BrowserRouter>
   <Routes>
     <Route path="/" element={<MainDashboard />} />
