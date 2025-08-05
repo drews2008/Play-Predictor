@@ -1,5 +1,6 @@
 import React from "react";
-import { PlayLogEntry } from "./TendencyDashboard";
+import { PlayLogEntry } from "<div className="" />
+<div className="" />TendencyDashboard";
 
 // Placeholder heat chart component
 const HeatChart: React.FC<{ playLogs: PlayLogEntry[] }> = ({ playLogs }) => {

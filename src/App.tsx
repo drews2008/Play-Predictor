@@ -1,18 +1,13 @@
-import DefensiveTendencies from './pages/DefensiveTendencies';
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/AppRoutes";
 
-function App() {
+const App = () => {
   return (
-    <div>
-      <DefensiveTendencies />
-    </div>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
-}
+};
+
 export default App;
-<BrowserRouter>
-  <Routes>
-    <Route path="/" element={<MainDashboard />} />
-    <Route path="./components/tendency" element={<TendencyDashboard />} />
-    <Route path="./components/defense" element={<DefensiveTendencies />} />
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-</BrowserRouter>

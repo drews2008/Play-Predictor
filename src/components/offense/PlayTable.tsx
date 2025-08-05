@@ -1,5 +1,5 @@
 import React from "react";
-import { PlayLogEntry } from "./TendencyDashboard";
+import { PlayLogEntry } from "../../types/PlayLogEntry";
 
 interface Props {
   playLogs: PlayLogEntry[];
@@ -19,7 +19,7 @@ const PlayTable: React.FC<Props> = ({ playLogs }) => {
             <th>Result</th>
             <th>Yards Gained</th>
             <th>Field Position</th>
-            <th>Notes</th>
+            <th>Ball Placement</th>
           </tr>
         </thead>
         <tbody>
@@ -32,7 +32,7 @@ const PlayTable: React.FC<Props> = ({ playLogs }) => {
               <td>{play.resultOfPlay}</td>
               <td>{play.yardageGained}</td>
               <td>{play.fieldPosition}</td>
-              <td>{play.notes || "-"}</td>
+              <td>{play.ballPlacement}</td>
             </tr>
           ))}
         </tbody>
