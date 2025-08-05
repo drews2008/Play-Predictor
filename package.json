@@ -1,7 +1,7 @@
 {
   "name": "playpredictor",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "chart.js": "^4.5.0",
     "classnames": "^2.5.1",
     "papaparse": "^5.5.3",
@@ -40,5 +41,17 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
     "vite": "^7.0.6"
+=======
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.37",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^4.4.9"
+>>>>>>> c3c73cf (Updated Tendency Dashboard with latest UI and data handling)
   }
 }

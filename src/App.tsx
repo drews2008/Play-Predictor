@@ -18,6 +18,4 @@ const App: React.FC = () => {
       <OffensivePlayUploader onDataProcessed={handleParsedData} />
     </div>
   );
-};
-
-export default App;
+}

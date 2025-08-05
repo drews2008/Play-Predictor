@@ -1,23 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PlayPredictor</title>
-  <link rel="icon" href="/favicon.ico" />
-</head>
-<body>
-  <div id="root"></div>
-  
-  <!-- 
-    In a React app, you generally don't include React scripts manually.
-    The bundler (e.g., Vite, Webpack) injects your built JS bundle here.
-    
-    So no need for any Firebase scripts here unless you want to load from CDN
-    — but better to import via npm in your React code.
-  -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PlayPredictor</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 
-  <!-- Example: Your built script will be injected here by your bundler -->
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+    <!-- Vite injects your bundled JS here automatically in dev and build -->
+  </body>
 </html>
