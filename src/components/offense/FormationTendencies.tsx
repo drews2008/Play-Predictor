@@ -1,43 +1,53 @@
 import React from "react";
-import { PlayLogEntry } from "../../types/PlayLogEntry";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
-interface Props {
-  playLogs: PlayLogEntry[];
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+interface FormationProps {
+  tendencies: {
+    formation: string;
+    runPct: number;
+    passPct: number;
+    topPlays: string[];
+  }[];
 }
 
-const FormationTendencies: React.FC<Props> = ({ playLogs }) => {
-  // Count run/pass by formation
-  const formationStats = playLogs.reduce<Record<string, { run: number; pass: number }>>((acc, play) => {
-    if (!acc[play.formation]) acc[play.formation] = { run: 0, pass: 0 };
-    if (play.playType === "Run") acc[play.formation].run++;
-    else if (play.playType === "Pass") acc[play.formation].pass++;
-    return acc;
-  }, {});
+const FormationTendencies: React.FC<FormationProps> = ({ tendencies }) => {
+  const pieData = {
+    labels: tendencies.map(t => t.formation),
+    datasets: [
+      {
+        label: "Run %",
+        data: tendencies.map(t => t.runPct),
+        backgroundColor: tendencies.map(() => `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 0.5)`),
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <div>
-      <h2>Formation Tendencies</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <h3>Formation Tendencies</h3>
+      <Pie data={pieData} />
+      <table>
         <thead>
           <tr>
             <th>Formation</th>
             <th>Run %</th>
             <th>Pass %</th>
+            <th>Top Plays</th>
           </tr>
         </thead>
         <tbody>
-          {Object.entries(formationStats).map(([formation, stats]) => {
-            const total = stats.run + stats.pass;
-            const runPct = total ? ((stats.run / total) * 100).toFixed(1) : "0";
-            const passPct = total ? ((stats.pass / total) * 100).toFixed(1) : "0";
-            return (
-              <tr key={formation}>
-                <td>{formation}</td>
-                <td>{runPct}%</td>
-                <td>{passPct}%</td>
-              </tr>
-            );
-          })}
+          {tendencies.map((t, i) => (
+            <tr key={i}>
+              <td>{t.formation}</td>
+              <td>{t.runPct.toFixed(1)}%</td>
+              <td>{t.passPct.toFixed(1)}%</td>
+              <td>{t.topPlays.join(", ")}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

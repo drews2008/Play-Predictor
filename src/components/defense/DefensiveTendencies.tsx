@@ -1,7 +1,7 @@
 import React from "react";
-import CoverageBreakdown from "../components/defense/CoverageBreakdown";
-import { PressureTrends } from "../components/defense/PressureTrends";
-import FrontAnalysis from "../components/defense/FrontAnalysis";
+import CoverageBreakdown from "./CoverageBreakdown";
+import { PressureTrends } from "./PressureTrends";
+import FrontAnalysis from "./FrontAnalysis";
 
 const DefensiveTendenciesPage: React.FC = () => {
   // Example data for each component; replace with real API or state

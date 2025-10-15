@@ -1,59 +1,63 @@
-import React, { useState } from "react";
+import React from "react";
+import OffensivePlaylogEntry from "../types/OffensivePlayLogEntry";
 
-const AddPlay: React.FC = () => {
-  const [formData, setFormData] = useState({
-    down: "",
-    distance: "",
-    playType: "",
-    playName: "",
-    yardageGained: "",
-    resultOfPlay: "",
-    formation: "",
-    ballPlacement: "",
-    driveStarter: false,
-    driveNumber: "",
+interface FormationTendenciesProps {
+  plays: OffensivePlaylogEntry[];
+}
+
+interface FormationStats {
+  runCount: number;
+  passCount: number;
+  total: number;
+}
+
+const FormationTendencies: React.FC<FormationTendenciesProps> = ({ plays }) => {
+  const formationMap: Record<string, FormationStats> = {};
+
+  plays.forEach((play) => {
+    const formation = play.formation || "Unknown";
+
+    if (!formationMap[formation]) {
+      formationMap[formation] = { runCount: 0, passCount: 0, total: 0 };
+    }
+
+    formationMap[formation].total += 1;
+    if (play.playType === "Run") formationMap[formation].runCount += 1;
+    else if (play.playType === "Pass") formationMap[formation].passCount += 1;
   });
 
-  // ✅ PLACE THIS FUNCTION HERE
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-
-    if (e.target instanceof HTMLInputElement && e.target.type === "checkbox") {
-      setFormData({
-        ...formData,
-        [name]: e.target.checked,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Play submitted:", formData);
-    // You can also clear the form here if needed
-  };
+  const formations = Object.entries(formationMap);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Down:
-        <input type="number" name="down" value={formData.down} onChange={handleChange} />
-      </label>
+    <div>
+      <h2>Formation Tendencies</h2>
+      <table className="table-auto border-collapse border border-gray-300 w-full">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 px-2 py-1">Formation</th>
+            <th className="border border-gray-300 px-2 py-1">Run %</th>
+            <th className="border border-gray-300 px-2 py-1">Pass %</th>
+            <th className="border border-gray-300 px-2 py-1">Total Plays</th>
+          </tr>
+        </thead>
+        <tbody>
+          {formations.map(([formation, stats]) => {
+            const runPct = ((stats.runCount / stats.total) * 100).toFixed(1);
+            const passPct = ((stats.passCount / stats.total) * 100).toFixed(1);
 
-      <label>
-        Drive Starter:
-        <input type="checkbox" name="driveStarter" checked={formData.driveStarter} onChange={handleChange} />
-      </label>
-
-      {/* Add more fields here using handleChange */}
-
-      <button type="submit">Add Play</button>
-    </form>
+            return (
+              <tr key={formation}>
+                <td className="border border-gray-300 px-2 py-1">{formation}</td>
+                <td className="border border-gray-300 px-2 py-1">{runPct}%</td>
+                <td className="border border-gray-300 px-2 py-1">{passPct}%</td>
+                <td className="border border-gray-300 px-2 py-1">{stats.total}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
-export default AddPlay;
+export default FormationTendencies;

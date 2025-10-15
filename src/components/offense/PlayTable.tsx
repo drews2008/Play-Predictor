@@ -1,38 +1,30 @@
 import React from "react";
-import { PlayLogEntry } from "../../types/PlayLogEntry";
+import OffensivePlaylogEntry from "../types/OffensivePlayLogEntry";
 
 interface Props {
-  playLogs: PlayLogEntry[];
+  plays: OffensivePlaylogEntry[];
 }
 
-const PlayTable: React.FC<Props> = ({ playLogs }) => {
+const PlayTable: React.FC<Props> = ({ plays }) => {
   return (
     <div>
-      <h2>Play Table</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <h3 className="text-xl font-semibold mb-2">Play Table</h3>
+      <table className="table-auto border-collapse border border-gray-300 w-full">
         <thead>
           <tr>
-            <th>Down</th>
-            <th>Distance</th>
-            <th>Play Type</th>
-            <th>Play Name</th>
-            <th>Result</th>
-            <th>Yards Gained</th>
-            <th>Field Position</th>
-            <th>Ball Placement</th>
+            <th className="border p-2">Play Name</th>
+            <th className="border p-2">Formation</th>
+            <th className="border p-2">Result</th>
+            <th className="border p-2">Yards</th>
           </tr>
         </thead>
         <tbody>
-          {playLogs.map((play, idx) => (
-            <tr key={idx} style={{ borderBottom: "1px solid #ccc" }}>
-              <td>{play.down}</td>
-              <td>{play.distance}</td>
-              <td>{play.playType}</td>
-              <td>{play.playName}</td>
-              <td>{play.resultOfPlay}</td>
-              <td>{play.yardageGained}</td>
-              <td>{play.fieldPosition}</td>
-              <td>{play.ballPlacement}</td>
+          {plays.map((play, idx) => (
+            <tr key={idx}>
+              <td className="border p-2">{play.PlayName}</td>
+              <td className="border p-2">{play.Formation}</td>
+              <td className="border p-2">{play.ResultOfPlay}</td>
+              <td className="border p-2">{play.YardageGained}</td>
             </tr>
           ))}
         </tbody>

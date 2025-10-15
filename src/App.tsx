@@ -1,13 +1,16 @@
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
-import AppRoutes from "./routes/AppRoutes";
+import OffensivePlayUploader from "./components/playlog/OffensivePlayUploader";
+import { OffensivePlayLogEntry } from "./types/OffensivePlayLogEntry";
 
-const App = () => {
+export const App: React.FC = () => {
+  const handleParsedData = (data: OffensivePlayLogEntry[]) => {
+    console.log("Parsed Play Log:", data);
+  };
+
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Play Log Upload Test</h1>
+      <OffensivePlayUploader onDataProcessed={handleParsedData} />
+    </div>
   );
 };
-
-export default App;

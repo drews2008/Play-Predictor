@@ -1,4 +1,4 @@
-import type { PlayLogEntry } from "../types/PlayLogEntry";
+import type { PlayLogEntry } from "../types/OffensivePlayLogEntry";
 
 const samplePlays: PlayLogEntry[] = [
   {
