@@ -1,3 +1,4 @@
+
 // src/components/defense/CoverageTable.tsx
 import React from "react";
 
