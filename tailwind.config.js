@@ -7,3 +7,4 @@ export default {
   theme: { extend: {} },
   plugins: [],
 };
+//# sourceMappingURL=tailwind.config.js.map

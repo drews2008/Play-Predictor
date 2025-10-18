@@ -1,63 +1,66 @@
-import React from "react";
-import OffensivePlaylogEntry from "../types/OffensivePlayLogEntry";
+import React, { useState } from "react";
+import { OffensivePlayLogEntry, Down } from "../../types/OffensivePlayLogEntry";
 
-interface FormationTendenciesProps {
-  plays: OffensivePlaylogEntry[];
+// Optional helper for consistent type
+const normalizeType = (type: string, playName?: string): "Run" | "Pass" => {
+  if (!type && playName) {
+    const name = playName.toLowerCase();
+    if (["pass", "screen", "slant", "fade", "out", "post", "cross"].some(k => name.includes(k)))
+      return "Pass";
+    return "Run";
+  }
+  return type?.toLowerCase() === "pass" ? "Pass" : "Run";
+};
+
+interface Props {
+  onAdd: (play: OffensivePlayLogEntry) => void;
 }
 
-interface FormationStats {
-  runCount: number;
-  passCount: number;
-  total: number;
-}
+const AddPlay: React.FC<Props> = ({ onAdd }) => {
+  const [play, setPlay] = useState<Partial<OffensivePlayLogEntry>>({});
 
-const FormationTendencies: React.FC<FormationTendenciesProps> = ({ plays }) => {
-  const formationMap: Record<string, FormationStats> = {};
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPlay({ ...play, [e.target.name]: e.target.value });
+  };
 
-  plays.forEach((play) => {
-    const formation = play.formation || "Unknown";
+  const handleSubmit = () => {
+    if (!play.down || !play.distance || !play.playName) return;
 
-    if (!formationMap[formation]) {
-      formationMap[formation] = { runCount: 0, passCount: 0, total: 0 };
-    }
+    const newPlay: OffensivePlayLogEntry = {
+      play: play.play ?? play.playName ?? "",
+      down: Number(play.down) as unknown as Down,
+      distance: Number(play.distance),
+      formation: play.formation || "Unknown",
+      playName: play.playName!,
+      type: normalizeType(play.type || "", play.playName),
+      yardageGained: play.yardageGained ? Number(play.yardageGained) : 0,
+      ballPlacement: play.ballPlacement || "Middle",
+      fieldPosition: play.fieldPosition ? Number(play.fieldPosition) : 50,
+      driveStarter: play.driveStarter ?? false,
+      driveNumber: play.driveNumber ? Number(play.driveNumber) : 1,
+      notes: play.notes || "",
+    };
 
-    formationMap[formation].total += 1;
-    if (play.playType === "Run") formationMap[formation].runCount += 1;
-    else if (play.playType === "Pass") formationMap[formation].passCount += 1;
-  });
-
-  const formations = Object.entries(formationMap);
+    onAdd(newPlay);
+    setPlay({});
+  };
 
   return (
-    <div>
-      <h2>Formation Tendencies</h2>
-      <table className="table-auto border-collapse border border-gray-300 w-full">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 px-2 py-1">Formation</th>
-            <th className="border border-gray-300 px-2 py-1">Run %</th>
-            <th className="border border-gray-300 px-2 py-1">Pass %</th>
-            <th className="border border-gray-300 px-2 py-1">Total Plays</th>
-          </tr>
-        </thead>
-        <tbody>
-          {formations.map(([formation, stats]) => {
-            const runPct = ((stats.runCount / stats.total) * 100).toFixed(1);
-            const passPct = ((stats.passCount / stats.total) * 100).toFixed(1);
-
-            return (
-              <tr key={formation}>
-                <td className="border border-gray-300 px-2 py-1">{formation}</td>
-                <td className="border border-gray-300 px-2 py-1">{runPct}%</td>
-                <td className="border border-gray-300 px-2 py-1">{passPct}%</td>
-                <td className="border border-gray-300 px-2 py-1">{stats.total}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="border p-4 rounded-xl">
+      <h3 className="font-semibold mb-2">Add Play</h3>
+      <div className="grid grid-cols-3 gap-2">
+        <input name="down" placeholder="Down" value={play.down || ""} onChange={handleChange} className="border p-1" />
+        <input name="distance" placeholder="Distance" value={play.distance || ""} onChange={handleChange} className="border p-1" />
+        <input name="formation" placeholder="Formation" value={play.formation || ""} onChange={handleChange} className="border p-1" />
+        <input name="playName" placeholder="Play Name" value={play.playName || ""} onChange={handleChange} className="border p-1" />
+        <input name="type" placeholder="Type (Run/Pass)" value={play.type || ""} onChange={handleChange} className="border p-1" />
+        <input name="yardageGained" placeholder="Yards" value={play.yardageGained || ""} onChange={handleChange} className="border p-1" />
+      </div>
+      <button onClick={handleSubmit} className="mt-3 px-3 py-1 bg-blue-500 text-white rounded-md">
+        Add Play
+      </button>
     </div>
   );
 };
 
-export default FormationTendencies;
+export default AddPlay;

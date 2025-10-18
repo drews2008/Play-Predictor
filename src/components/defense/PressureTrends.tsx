@@ -1,60 +1,60 @@
-import cn from 'classnames';
+// src/components/defense/PressureTable.tsx
 import React from "react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-} from "recharts";import { Card, CardContent } from '../ui/card';
 
-// Props interface for reusable integration
-interface PressureTrendsProps {
-  data: {
-    week: string;
-    blitzRate: number;
-    pressureRate: number;
-    sackRate: number;
-  }[];
-  className?: string;
+interface Props {
+  hash: string;
+  data: Record<string, Record<string, number>>;
+  totals: Record<string, number>;
 }
 
-// Fallback demo data (can be replaced by real props)
-const sampleData = [
-  { week: "Week 1", blitzRate: 22, pressureRate: 30, sackRate: 8 },
-  { week: "Week 2", blitzRate: 25, pressureRate: 28, sackRate: 10 },
-  { week: "Week 3", blitzRate: 20, pressureRate: 26, sackRate: 7 },
-  { week: "Week 4", blitzRate: 27, pressureRate: 34, sackRate: 12 },
+const situationOrder = [
+  "First Play",
+  "1st & 10",
+  "2nd & 1–3",
+  "2nd & 4–7",
+  "2nd & 8+",
+  "3rd & 1–3",
+  "3rd & 4–7",
+  "3rd & 8+",
+  "4th & Short",
+  "4th & Medium",
+  "4th & Long",
+  "Other",
 ];
 
-// Main component
-export const PressureTrends: React.FC<Partial<PressureTrendsProps>> = ({
-  data = sampleData,
-  className = "",
-}) => {
+const PressureTable: React.FC<Props> = ({ hash, data, totals }) => {
   return (
-    <Card className={cn("w-full", className)}>
-      <CardContent className="p-4">
-        <h2 className="text-lg font-semibold mb-2">Pressure Trends</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart
-            data={data}
-            margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="week" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="blitzRate" fill="#8884d8" name="Blitz Rate (%)" />
-            <Bar dataKey="pressureRate" fill="#82ca9d" name="Pressure Rate (%)" />
-            <Bar dataKey="sackRate" fill="#ffc658" name="Sack Rate (%)" />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <div className="mt-4">
+      <h4 className="font-semibold mb-2 text-center">{hash} Hash – Pressure</h4>
+      <table className="min-w-full border text-sm">
+        <thead className="bg-blue-600 text-white">
+          <tr>
+            <th className="border px-2 py-1 text-left">Situation</th>
+            <th className="border px-2 py-1 text-left">Top Pressure</th>
+          </tr>
+        </thead>
+        <tbody>
+          {situationOrder
+            .filter((s) => data[s])
+            .map((situation, i) => {
+              const stats = data[situation];
+              const total = totals[situation];
+              const sorted = Object.entries(stats)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([name, count]) => `${name} (${((count / total) * 100).toFixed(0)}%)`)
+                .join(", ");
+              return (
+                <tr key={i} className="even:bg-blue-50">
+                  <td className="border px-2 py-1">{situation}</td>
+                  <td className="border px-2 py-1">{sorted}</td>
+                </tr>
+              );
+            })}
+        </tbody>
+      </table>
+    </div>
   );
 };
+
+export default PressureTable;

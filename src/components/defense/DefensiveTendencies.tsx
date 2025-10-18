@@ -1,46 +1,112 @@
+// src/components/defense/DefensiveTendencies.tsx
 import React from "react";
-import CoverageBreakdown from "./CoverageBreakdown";
-import { PressureTrends } from "./PressureTrends";
-import FrontAnalysis from "./FrontAnalysis";
+import CoverageTable from "./CoverageBreakdown";
+import PressureTable from "./PressureTrends";
+import FrontTable from "./FrontAnalysis"
 
-const DefensiveTendenciesPage: React.FC = () => {
-  // Example data for each component; replace with real API or state
-  const coverageData = [
-    { coverageType: "Zone", percentage: 45, description: "Zone coverage focuses on area defense." },
-    { coverageType: "Man", percentage: 35, description: "Man coverage focuses on individual matchups." },
-    { coverageType: "Blitz", percentage: 20, description: "Blitz is aggressive pass rush." },
-  ];
+export interface DefensivePlayLogEntry {
+  defensiveFront: string;
+  coverageType: string;
+  pressureType: string;
+  down?: number;
+  distance?: number;
+  ballPlacement?: "Left" | "Middle" | "Right";
+  resultOfPlay?: string;
+  yardageAllowed?: number;
+  notes?: string;
+}
 
-  const pressureData = [
-    { week: "Week 1", blitzRate: 22, pressureRate: 30, sackRate: 8 },
-    { week: "Week 2", blitzRate: 25, pressureRate: 28, sackRate: 10 },
-    { week: "Week 3", blitzRate: 20, pressureRate: 26, sackRate: 7 },
-    { week: "Week 4", blitzRate: 27, pressureRate: 34, sackRate: 12 },
-  ];
+interface Props {
+  playLog: DefensivePlayLogEntry[];
+}
 
-  const frontAnalysisData = [
-    { frontName: "4-3", usagePercent: 50, runStopRate: 60, passRushRate: 40, notes: "Base defense" },
-    { frontName: "3-4", usagePercent: 30, runStopRate: 55, passRushRate: 45, notes: "Nickel personnel" },
-    { frontName: "Nickel", usagePercent: 20, runStopRate: 50, passRushRate: 50, notes: "Pass defense focus" },
-  ];
+const hashes = ["Left", "Middle", "Right"];
+
+const getSituationBucket = (down?: number, distance?: number): string => {
+  const d = Number(distance);
+  const dn = Number(down);
+
+  if (!dn || isNaN(dn)) return "First Play";
+
+  switch (dn) {
+    case 1:
+      return "1st & 10";
+    case 2:
+      if (d >= 1 && d <= 3) return "2nd & 1–3";
+      if (d >= 4 && d <= 7) return "2nd & 4–7";
+      if (d >= 8) return "2nd & 8+";
+      return "2nd & ?";
+    case 3:
+      if (d >= 1 && d <= 3) return "3rd & 1–3";
+      if (d >= 4 && d <= 7) return "3rd & 4–7";
+      if (d >= 8) return "3rd & 8+";
+      return "3rd & ?";
+    case 4:
+      if (d <= 2) return "4th & Short";
+      if (d <= 5) return "4th & Medium";
+      return "4th & Long";
+    default:
+      return "Other";
+  }
+};
+
+const DefensiveTendencies: React.FC<Props> = ({ playLog }) => {
+  const grouped: Record<
+    string,
+    Record<
+      string,
+      {
+        coverages: Record<string, number>;
+        pressures: Record<string, number>;
+        fronts: Record<string, number>;
+        total: number;
+      }
+    >
+  > = {};
+
+  hashes.forEach((hash) => (grouped[hash] = {}));
+
+  playLog.forEach((play) => {
+    const hash = play.ballPlacement || "Middle";
+    const situation = getSituationBucket(play.down, play.distance);
+
+    if (!grouped[hash][situation]) {
+      grouped[hash][situation] = { coverages: {}, pressures: {}, fronts: {}, total: 0 };
+    }
+
+    const g = grouped[hash][situation];
+    g.total++;
+    g.coverages[play.coverageType || "Unknown"] = (g.coverages[play.coverageType || "Unknown"] || 0) + 1;
+    g.pressures[play.pressureType || "Unknown"] = (g.pressures[play.pressureType || "Unknown"] || 0) + 1;
+    g.fronts[play.defensiveFront || "Unknown"] = (g.fronts[play.defensiveFront || "Unknown"] || 0) + 1;
+  });
 
   return (
-    <main style={{ maxWidth: 1000, margin: "2rem auto", fontFamily: "Segoe UI, Tahoma, Geneva, Verdana, sans-serif", padding: "0 1rem" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "2rem" }}>Defensive Tendencies Overview</h1>
+    <div className="mt-4">
+      <h3 className="text-lg font-semibold mb-2">Defensive Tendencies by Hash</h3>
+      {hashes.map((hash) => {
+        const totals: Record<string, number> = {};
+        const coverages: Record<string, Record<string, number>> = {};
+        const pressures: Record<string, Record<string, number>> = {};
+        const fronts: Record<string, Record<string, number>> = {};
 
-      <section style={{ marginBottom: "3rem" }}>
-        <CoverageBreakdown data={coverageData} />
-      </section>
+        Object.entries(grouped[hash]).forEach(([situation, stats]) => {
+          coverages[situation] = stats.coverages;
+          pressures[situation] = stats.pressures;
+          fronts[situation] = stats.fronts;
+          totals[situation] = stats.total;
+        });
 
-      <section style={{ marginBottom: "3rem" }}>
-        <PressureTrends data={pressureData} />
-      </section>
-
-      <section>
-        <FrontAnalysis data={frontAnalysisData} />
-      </section>
-    </main>
+        return (
+          <div key={hash} className="grid grid-cols-3 gap-4 mb-6">
+            <CoverageTable hash={hash} data={coverages} totals={totals} />
+            <PressureTable hash={hash} data={pressures} totals={totals} />
+            <FrontTable hash={hash} data={fronts} totals={totals} />
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
-export default DefensiveTendenciesPage;
+export default DefensiveTendencies;

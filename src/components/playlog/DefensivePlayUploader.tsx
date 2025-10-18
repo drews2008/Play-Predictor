@@ -1,7 +1,10 @@
 import React from 'react';
 import { usePlayContext } from '../../context/PlayContext';
 import { uploadPlayLog } from '../../services/playlogServices';
-import type { DefensivePlayLogEntry } from '../../types/DefensivePlayLogEntry';
+
+// DefensivePlayLogEntry file isn't a module in the project; use a local fallback type.
+// Replace `any` with a proper shape when the type file is exported as a module.
+type DefensivePlayLogEntry = any;
 
 const DefensivePlayUploader = () => {
   const playContext = usePlayContext();
