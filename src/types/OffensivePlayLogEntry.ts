@@ -1,18 +1,37 @@
-export type Down = 1 | 2 | 3 | 4;
-export type Hash = "Left" | "Middle" | "Right";
-export type PlayType = "Run" | "Pass";
+const enum Down {
+  First = 1,
+  Second = 2,
+  Third = 3,
+  Fourth = 4,
+}
+
+const enum Hash {
+  Left = "Left",
+  Middle = "Middle",
+  Right = "Right",
+}
+
+const enum PlayType {
+  Run = "Run",
+  Pass = "Pass",
+  Other = "Other",
+}
 
 export interface OffensivePlayLogEntry {
   down: Down;
   distance: number;
-  tapeCue?: string;
-  fieldPosition?: number;
   ballPlacement: Hash;
-  driveStarter?: boolean;
-  driveNumber?: number;
   playType?: PlayType;
+
   formation: string;
   playName: string;
+
+  playConcept?: string; // ← ADD THIS
+
+  tapeCue?: string;
+  fieldPosition?: number;
+  driveStarter?: boolean;
+  driveNumber?: number;
   result?: string;
   yardageGained?: number;
   notes?: string;

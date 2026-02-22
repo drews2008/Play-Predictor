@@ -1,23 +1,27 @@
-export const parseOffensiveCSV = (csv: string) => {
-  const lines = csv.trim().split("\n");
-  const headers = lines[0].split(",");
+export const parseOffensiveCSV = (text: string) => {
+  const rows = text.trim().split("\n").slice(1);
 
-  return lines.slice(1).map((line) => {
-    const values = line.split(",");
+  return rows.map((row) => {
+    const cols = row.split(",");
 
-    const row: any = {};
-    headers.forEach((header, i) => {
-      row[header.trim()] = values[i]?.trim();
-    });
+    const play = cols[7]?.trim(); // "Play" column (Run/Pass)
 
     return {
-      down: Number(row.down),
-      distance: Number(row.distance),
-      ballPlacement: row.ballPlacement,
-      playType: row.playType,
-      formation: row.formation,
-      playName: row.playName,
-      yardageGained: Number(row.yardageGained),
+      down: Number(cols[0]),
+      distance: Number(cols[1]),
+
+      ballPlacement: cols[4]?.trim() || "Middle",
+
+      // ✅ FIXED
+      playType: play === "Run" ? "Run" : play === "Pass" ? "Pass" : undefined,
+
+      // ✅ NEW
+      playConcept: cols[8]?.trim(),
+
+      formation: cols[9]?.trim() || "Unknown",
+      playName: cols[10]?.trim(),
+
+      yardageGained: Number(cols[12]) || 0,
     };
   });
 };

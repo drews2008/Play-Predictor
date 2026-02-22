@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import OffensivePlayUploader from "../components/playlog/OffensivePlayUploader";
 import OffensiveTendencies from "../components/offense/OffensiveTendencies";
-import SituationalTendencies from "../components/offense/SituationalTendencies";
 import { OffensivePlayLogEntry } from "../types/OffensivePlayLogEntry";
 
 const OffensiveDashboard: React.FC = () => {
@@ -18,7 +17,6 @@ const OffensiveDashboard: React.FC = () => {
       {playLog.length > 0 ? (
         <>
           <OffensiveTendencies playLog={playLog} />
-          <SituationalTendencies playLog={playLog} />
         </>
       ) : (
         <p className="mt-4 text-gray-600">

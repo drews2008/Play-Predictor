@@ -12,18 +12,25 @@ const OffensivePlayUploader: React.FC<Props> = ({ onDataLoaded }) => {
     if (!file) return;
 
     const reader = new FileReader();
+
     reader.onload = (event) => {
       const text = event.target?.result;
+
       if (typeof text === "string") {
         const parsed = parseOffensiveCSV(text);
-        // Convert down to the correct Down type
-        const converted = parsed.map((entry: any) => ({
+
+        // Ensure correct typing
+        const cleaned: OffensivePlayLogEntry[] = parsed.map((entry: any) => ({
           ...entry,
-          down: entry.down as OffensivePlayLogEntry["down"],
+          down: Number(entry.down) as OffensivePlayLogEntry["down"],
+          distance: Number(entry.distance),
+          yardageGained: Number(entry.yardageGained),
         }));
-        onDataLoaded(converted);
+
+        onDataLoaded(cleaned);
       }
     };
+
     reader.readAsText(file);
   };
 

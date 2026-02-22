@@ -1,7 +1,5 @@
-
 import React from "react";
-
-import { getSituationalTendencies } from "../../engine/tendencyEngine";// Define the Props interface
+import { getSituationalTendencies } from "../../engine/tendencyEngine";
 import { OffensivePlayLogEntry } from "../../types/OffensivePlayLogEntry";
 
 interface Props {
@@ -23,18 +21,26 @@ const SituationalTendencies: React.FC<Props> = ({ playLog }) => {
     "Other",
   ];
 
+  const formatCell = (g: { run: number; pass: number; total: number }) => {
+    if (!g || g.total === 0) return "-";
+    const runPct = ((g.run / g.total) * 100).toFixed(0);
+    const passPct = ((g.pass / g.total) * 100).toFixed(0);
+    return `${runPct}% / ${passPct}%`;
+  };
+
   return (
-    <div>
+    <div className="mt-6">
       <h3 className="text-lg font-semibold mb-2 text-blue-700">
-        Situational Tendencies
+        Situational Tendencies (By Hash)
       </h3>
 
       <table className="min-w-full border text-sm">
         <thead className="bg-blue-600 text-white">
           <tr>
             <th className="border px-2 py-1 text-left">Situation</th>
-            <th className="border px-2 py-1 text-left">Run %</th>
-            <th className="border px-2 py-1 text-left">Pass %</th>
+            <th className="border px-2 py-1 text-center">Left</th>
+            <th className="border px-2 py-1 text-center">Middle</th>
+            <th className="border px-2 py-1 text-center">Right</th>
           </tr>
         </thead>
 
@@ -42,15 +48,23 @@ const SituationalTendencies: React.FC<Props> = ({ playLog }) => {
           {order
             .filter((s) => grouped[s])
             .map((s) => {
-              const g = grouped[s];
-              const runPct = ((g.run / g.total) * 100).toFixed(0);
-              const passPct = ((g.pass / g.total) * 100).toFixed(0);
+              const row = grouped[s];
 
               return (
                 <tr key={s} className="even:bg-blue-50">
-                  <td className="border px-2 py-1">{s}</td>
-                  <td className="border px-2 py-1">{runPct}%</td>
-                  <td className="border px-2 py-1">{passPct}%</td>
+                  <td className="border px-2 py-1 font-medium">{s}</td>
+
+                  <td className="border px-2 py-1 text-center">
+                    {formatCell(row.Left)}
+                  </td>
+
+                  <td className="border px-2 py-1 text-center">
+                    {formatCell(row.Middle)}
+                  </td>
+
+                  <td className="border px-2 py-1 text-center">
+                    {formatCell(row.Right)}
+                  </td>
                 </tr>
               );
             })}
@@ -59,4 +73,5 @@ const SituationalTendencies: React.FC<Props> = ({ playLog }) => {
     </div>
   );
 };
+
 export default SituationalTendencies;
