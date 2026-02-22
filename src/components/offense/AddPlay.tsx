@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { OffensivePlayLogEntry, Down } from "../../types/OffensivePlayLogEntry";
+import { OffensivePlayLogEntry } from "../../types/OffensivePlayLogEntry";
 
 // Optional helper for consistent type
 const normalizeType = (type: string, playName?: string): "Run" | "Pass" => {

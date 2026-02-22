@@ -1,21 +1,38 @@
-// src/App.tsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import OffensivePlayUploader from "./components/playlog/OffensivePlayUploader";
-import { OffensivePlayLogEntry } from "./types/OffensivePlayLogEntry";
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
+import MainDashboard from "./pages/MainDashboard";
+import OffensiveDashboard from "./pages/OffensiveDashboard";
+import DefensiveDashboard from "./pages/DefensiveDashboard";
+import PlayDrawing from "./pages/PlayDrawingPage";
 
 const App: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleParsedData = (data: OffensivePlayLogEntry[]) => {
-    console.log("Parsed Play Log:", data);
-    navigate("/dashboard", { state: { data } });
-  };
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Upload Play Log</h1>
-      <OffensivePlayUploader onDataProcessed={handleParsedData} />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-gray-100 text-gray-900">
+        <nav className="bg-blue-700 text-white px-4 py-3 flex items-center justify-between shadow-md">
+          <h1 className="text-xl font-bold">PlayPredictor Dashboard</h1>
+          <div className="space-x-4">
+            <Link to="/" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Main</Link>
+            <Link to="/offense" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Offensive</Link>
+            <Link to="/defense" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Defensive</Link>
+            <Link to="/playdrawing" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Play Drawing</Link>
+          </div>
+        </nav>
+
+        <main className="p-6">
+          <Routes>
+            <Route path="/" element={<MainDashboard />} />
+            <Route path="/offense" element={<OffensiveDashboard />} />
+            <Route path="/defense" element={<DefensiveDashboard />} />
+            <Route path="/playdrawing" element={<PlayDrawing />} />
+            
+            {/* 👇 Redirect all unknown routes to Main */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
-}
+};
+
+export default App;

@@ -57,7 +57,7 @@ export default function MainDashboard() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Main Dashboard</h1>
+      <h1 className="text-2xl font-bold">Defensive Dashboard</h1>
 
       <Card className="p-4">
         <h2 className="text-xl font-semibold mb-2">Upload Defensive Play Log</h2>

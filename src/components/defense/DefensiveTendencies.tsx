@@ -2,7 +2,7 @@
 import React from "react";
 import CoverageTable from "./CoverageBreakdown";
 import PressureTable from "./PressureTrends";
-import FrontTable from "./FrontAnalysis"
+import FrontTable from "./FrontTable";
 
 export interface DefensivePlayLogEntry {
   defensiveFront: string;

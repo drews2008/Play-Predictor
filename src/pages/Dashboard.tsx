@@ -15,7 +15,7 @@ const Dashboard = () => {
         Go to Tendency Dashboard
       </button>
       <button
-        onClick={() => navigate("/drawing")}
+      onClick={() => navigate("/drawing")}
         className="bg-green-600 text-white py-2 px-4 rounded"
       >
         Go to Play Drawing

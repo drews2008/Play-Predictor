@@ -1,29 +1,30 @@
-// src/pages/OffensiveDashboard.tsx
 import React, { useState } from "react";
 import OffensivePlayUploader from "../components/playlog/OffensivePlayUploader";
 import OffensiveTendencies from "../components/offense/OffensiveTendencies";
+import SituationalTendencies from "../components/offense/SituationalTendencies";
 import { OffensivePlayLogEntry } from "../types/OffensivePlayLogEntry";
 
 const OffensiveDashboard: React.FC = () => {
   const [playLog, setPlayLog] = useState<OffensivePlayLogEntry[]>([]);
 
-  const handleParsedData = (data: OffensivePlayLogEntry[]) => {
-    setPlayLog(data);
-  };
-
-  const handleAddPlay = (play: OffensivePlayLogEntry) => {
-    setPlayLog(prev => [...prev, play]);
-  };
-
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Offensive Tendency Dashboard</h1>
-      <OffensivePlayUploader onDataProcessed={handleParsedData} />
-      {playLog.length > 0 && (
-        <OffensiveTendencies playLog={playLog} onAddPlay={handleAddPlay} />
-      )}
- 
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4 text-blue-700">
+        Offensive Tendency Dashboard
+      </h2>
 
+      <OffensivePlayUploader onDataLoaded={setPlayLog} />
+
+      {playLog.length > 0 ? (
+        <>
+          <OffensiveTendencies playLog={playLog} />
+          <SituationalTendencies playLog={playLog} />
+        </>
+      ) : (
+        <p className="mt-4 text-gray-600">
+          Upload a playlog to view tendencies.
+        </p>
+      )}
     </div>
   );
 };
