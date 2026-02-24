@@ -1,147 +1,177 @@
+/* ================= TYPES ================= */
+export type PlayType = "run" | "pass";
+
+export interface Play {
+  down: number;
+  distance: number;
+
+  formation: string;
+  playName: string;
+
+  playType: PlayType;
+  concept: string;
+
+  yards: number;
+}
+
+/* ================= IMPORT RAW TYPE ================= */
 import { OffensivePlayLogEntry } from "../types/OffensivePlayLogEntry";
 
-/**
- * Normalize helper (CRITICAL)
- */
-const normalize = (val?: string) =>
-  val?.trim().toLowerCase() || "";
-
-/**
- * OVERALL RUN / PASS
- */
-export const getOverallTendencies = (plays: OffensivePlayLogEntry[]) => {
-  let run = 0;
-  let pass = 0;
-
-  plays.forEach((p) => {
-    const type = normalize(p.playType);
-
-    if (type === "run") run++;
-    else if (type === "pass") pass++;
-  });
-
-  const total = run + pass;
+/* ================= NORMALIZER ================= */
+function normalizePlay(p: OffensivePlayLogEntry): Play {
+  const type = (p as any).playType?.toLowerCase();
 
   return {
-    run,
-    pass,
-    runPct: total ? (run / total) * 100 : 0,
-    passPct: total ? (pass / total) * 100 : 0,
+    down: Number((p as any).down ?? 0),
+    distance: Number((p as any).distance ?? 0),
+
+    formation: (p as any).formation || "Unknown",
+    playName:
+  p.playName ??
+  (p as any)["Play name"] ??
+  "Unknown",
+    playType: type === "run" ? "run" : "pass",
+
+    concept:
+      p.playConcept ??
+    (p as any)["Concept"] ??
+        "other",
+    // ✅ FIXED (handles real CSV variations)
+    yards: Number(
+      (p as any)["Yardage Gained"] ??
+      (p as any).yards ??
+      (p as any).yardageGained ??
+      0
+    ),
   };
+}
+
+/* ================= HELPERS ================= */
+const pct = (value: number, total: number) =>
+  total ? (value / total) * 100 : 0;
+
+const avg = (value: number, total: number) =>
+  total ? value / total : 0;
+
+const getDistanceBucket = (distance: number) => {
+  if (distance <= 3) return "1-3";
+  if (distance <= 7) return "4-7";
+  return "8+";
 };
 
-/**
- * FORMATION
- */
-export const getFormationTendencies = (plays: OffensivePlayLogEntry[]) => {
-  const formations: Record<string, { run: number; pass: number }> = {};
+const getSituationKey = (p: Play) => {
+  if (p.down === 1 && p.distance === 10) return "1st & 10";
 
-  plays.forEach((p) => {
-    const formation = p.formation?.trim() || "Unknown";
-    const type = normalize(p.playType);
-
-    if (!formations[formation]) {
-      formations[formation] = { run: 0, pass: 0 };
-    }
-
-    if (type === "run") formations[formation].run++;
-    if (type === "pass") formations[formation].pass++;
-  });
-
-  return formations;
-};
-
-/**
- * DOWN + DISTANCE
- */
-const getDownDistance = (down?: number, distance?: number) => {
-  const dn = Number(down);
-  const d = Number(distance);
-
-  if (isNaN(dn) || isNaN(d)) return "Other";
-
-  if (dn === 1) return "1st & 10";
-
-  if (dn === 2) {
-    if (d <= 3) return "2nd & 1–3";
-    if (d <= 7) return "2nd & 4–7";
-    return "2nd & 8+";
-  }
-
-  if (dn === 3) {
-    if (d <= 3) return "3rd & 1–3";
-    if (d <= 7) return "3rd & 4–7";
-    return "3rd & 8+";
-  }
-
-  if (dn === 4) return "4th Down";
-
+  if (p.down === 2) return `2nd & ${getDistanceBucket(p.distance)}`;
+  if (p.down === 3) return `3rd & ${getDistanceBucket(p.distance)}`;
+  if (p.down === 4) return `4th & ${getDistanceBucket(p.distance)}`;
+    if (p.down === 0 && p.distance === 0) return "2PT";
   return "Other";
 };
 
-/**
- * SITUATIONAL (WITH HASH)
- */
-export const getSituationalTendencies = (plays: OffensivePlayLogEntry[]) => {
-  const grouped: Record<
-    string,
-    {
-      Left: { run: number; pass: number; total: number };
-      Middle: { run: number; pass: number; total: number };
-      Right: { run: number; pass: number; total: number };
-    }
-  > = {};
+/* ================= FORMATIONS ================= */
+export function buildFormations(playLog: OffensivePlayLogEntry[]) {
+  const data = playLog.map(normalizePlay);
+  const map: Record<string, any> = {};
 
-  plays.forEach((p) => {
-    const situation = getDownDistance(p.down, p.distance);
+  data.forEach((p) => {
+    const key = p.formation;
 
-    const rawHash = p.ballPlacement?.trim();
-    const hash =
-      rawHash === "Left" || rawHash === "Right" || rawHash === "Middle"
-        ? rawHash
-        : "Middle";
-
-    if (!grouped[situation]) {
-      grouped[situation] = {
-        Left: { run: 0, pass: 0, total: 0 },
-        Middle: { run: 0, pass: 0, total: 0 },
-        Right: { run: 0, pass: 0, total: 0 },
+    if (!map[key]) {
+      map[key] = {
+        total: 0,
+        run: 0,
+        pass: 0,
+        yards: 0,
       };
     }
 
-    const bucket = grouped[situation][hash];
-    const type = normalize(p.playType);
+    const f = map[key];
 
-    bucket.total++;
+    f.total++;
+    f.yards += p.yards;
 
-    if (type === "run") bucket.run++;
-    if (type === "pass") bucket.pass++;
+    if (p.playType === "run") f.run++;
+    else f.pass++;
   });
 
-  return grouped;
-};
-/**
- * PLAY CONCEPT BREAKDOWN (COUNTS, NOT %)
- */export const getConceptTendencies = (plays: OffensivePlayLogEntry[]) => {
-  const concepts: Record<
-    string,
-    { run: number; pass: number; total: number }
-  > = {};
+  Object.values(map).forEach((f: any) => {
+    f.runPct = pct(f.run, f.total);
+    f.passPct = pct(f.pass, f.total);
+    f.avgYards = avg(f.yards, f.total);
+  });
 
-  plays.forEach((p) => {
-    const concept = (p.playConcept || p.playName || "Unknown").trim();
+  return map;
+}
 
-    if (!concepts[concept]) {
-      concepts[concept] = { run: 0, pass: 0, total: 0 };
+/* ================= SITUATIONS ================= */
+export function buildSituations(playLog: OffensivePlayLogEntry[]) {
+  const data = playLog.map(normalizePlay);
+  const map: Record<string, any> = {};
+
+  data.forEach((p) => {
+    const key = getSituationKey(p);
+
+    if (!map[key]) {
+      map[key] = {
+        total: 0,
+        run: 0,
+        pass: 0,
+        yards: 0,
+      };
     }
 
-    const type = normalize(p.playType);
+    const s = map[key];
 
-    concepts[concept].total++;
+    s.total++;
+    s.yards += p.yards;
 
-    if (type === "run") concepts[concept].run++;
-    if (type === "pass") concepts[concept].pass++;
+    if (p.playType === "run") s.run++;
+    else s.pass++;
   });
 
-  return concepts;
-};
+  Object.values(map).forEach((s: any) => {
+    s.runPct = pct(s.run, s.total);
+    s.passPct = pct(s.pass, s.total);
+    s.avgYards = avg(s.yards, s.total);
+  });
+
+  return map;
+}
+
+/* ================= CONCEPTS ================= */
+export function buildConcepts(playLog: OffensivePlayLogEntry[]) {
+  const data = playLog.map(normalizePlay);
+  const map: Record<string, any> = {};
+
+  data.forEach((p) => {
+    const key = p.concept;
+
+    if (!map[key]) {
+      map[key] = {
+        total: 0,
+        yards: 0,
+        situations: {},
+      };
+    }
+
+    const c = map[key];
+
+    c.total++;
+    c.yards += p.yards;
+
+    const situation = getSituationKey(p);
+    c.situations[situation] =
+      (c.situations[situation] || 0) + 1;
+  });
+
+  Object.values(map).forEach((c: any) => {
+    c.avgYards = avg(c.yards, c.total);
+
+    c.topSituations = Object.entries(c.situations)
+      .sort((a: any, b: any) => b[1] - a[1])
+      .slice(0, 3);
+  });
+
+  return map;
+}

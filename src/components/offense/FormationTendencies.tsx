@@ -1,4 +1,7 @@
+// components/offense/FormationTendencies.tsx
+
 import React from "react";
+import { buildFormations } from "../../engine/tendencyEngine";
 import { OffensivePlayLogEntry } from "../../types/OffensivePlayLogEntry";
 
 interface Props {
@@ -6,39 +9,43 @@ interface Props {
 }
 
 const FormationTendencies: React.FC<Props> = ({ playLog }) => {
-  const grouped: Record<string, { run: number; pass: number; total: number }> = {};
-
-  playLog.forEach((play) => {
-    const formation = play.formation || "Unknown";
-    if (!grouped[formation]) grouped[formation] = { run: 0, pass: 0, total: 0 };
-    grouped[formation].total++;
-    if (play.playType?.toLowerCase().includes("run")) grouped[formation].run++;
-    else grouped[formation].pass++;
-  });
+  const data = buildFormations(playLog);
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold mb-2 text-blue-700">Formation Tendencies</h3>
-      <table className="min-w-full border text-sm">
-        <thead className="bg-blue-600 text-white">
-          <tr>
-            <th className="border px-2 py-1 text-left">Formation</th>
-            <th className="border px-2 py-1 text-left">Run %</th>
-            <th className="border px-2 py-1 text-left">Pass %</th>
+    <div className="p-6 border rounded-xl bg-white shadow">
+      <h3 className="text-xl font-bold mb-4">Formation Tendencies</h3>
+
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-2 text-left">Formation</th>
+            <th className="p-2">Run %</th>
+            <th className="p-2">Pass %</th>
+            <th className="p-2">Avg Yds</th>
+            <th className="p-2">Top Plays</th>
           </tr>
         </thead>
+
         <tbody>
-          {Object.entries(grouped).map(([formation, stats], i) => {
-            const runPct = ((stats.run / stats.total) * 100).toFixed(0);
-            const passPct = ((stats.pass / stats.total) * 100).toFixed(0);
-            return (
-              <tr key={i} className="even:bg-blue-50">
-                <td className="border px-2 py-1">{formation}</td>
-                <td className="border px-2 py-1">{runPct}%</td>
-                <td className="border px-2 py-1">{passPct}%</td>
-              </tr>
-            );
-          })}
+          {Object.entries(data).map(([key, f]: any) => (
+            <tr key={key} className="border-t">
+              <td className="p-2 font-semibold">{key}</td>
+              <td className="p-2 text-center">
+                {Number(f.runPct ?? 0).toFixed(0)}%
+              </td>
+              <td className="p-2 text-center">
+                {Number(f.passPct ?? 0).toFixed(0)}%
+              </td>
+              <td className="p-2 text-center">
+                {Number(f.avgYards ?? 0).toFixed(1)}
+              </td>
+              <td className="p-2 text-center">
+                {f.topPlays
+                  ?.map((p: any) => `${p[0]} (${p[1]})`)
+                  .join(", ") || "-"}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

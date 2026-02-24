@@ -3,6 +3,7 @@ const enum Down {
   Second = 2,
   Third = 3,
   Fourth = 4,
+  twopt = "2 pt. Conv.",
 }
 
 const enum Hash {

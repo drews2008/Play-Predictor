@@ -1,62 +1,48 @@
 import React from "react";
-import { getConceptTendencies } from "../../engine/tendencyEngine";
 import { OffensivePlayLogEntry } from "../../types/OffensivePlayLogEntry";
+import { buildConcepts } from "../../engine/tendencyEngine";
 
 interface Props {
   playLog: OffensivePlayLogEntry[];
 }
 
 const ConceptBreakdown: React.FC<Props> = ({ playLog }) => {
-  const concepts = getConceptTendencies(playLog);
+  const concepts = buildConcepts(playLog);
 
   return (
-    <div className="mt-4">
-      <h3 className="text-lg font-semibold mb-3 text-blue-700">
-        Concept Breakdown (Run vs Pass Usage)
-      </h3>
-
-      <table className="min-w-full border text-sm shadow-sm">
-        <thead className="bg-blue-600 text-white">
-          <tr>
-            <th className="border px-3 py-2 text-left">Concept</th>
-            <th className="border px-3 py-2 text-green-200">Run</th>
-            <th className="border px-3 py-2 text-red-200">Pass</th>
-            <th className="border px-3 py-2">Total</th>
-          </tr>
-        </thead>
-
+    <div className="mt-6 p-6 rounded-xl border border-gray-300 bg-white shadow-md">
+      <h3 className="text-xl font-bold mb-4">Concept Breakdown</h3>
+      <table className="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
+  <thead>
+  <tr className="bg-blue-700 text-white">
+    <th className="px-4 py-3 text-left">Concept</th>
+    <th className="px-4 py-3 text-center">Total</th>
+    <th className="px-4 py-3 text-center">Avg Yards</th>
+    <th className="px-4 py-3 text-left">Top Situations</th>
+  </tr>
+</thead>
         <tbody>
-          {Object.entries(concepts).map(([concept, data]) => {
-            const isRunHeavy = data.run > data.pass;
-            const isPassHeavy = data.pass > data.run;
+  {Object.entries(concepts).map(([concept, data]: any, idx) => (
+    <tr key={concept} className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+      <td className="px-4 py-3 font-semibold">{concept}</td>
 
-            return (
-              <tr
-                key={concept}
-                className={`even:bg-blue-50 ${
-                  isRunHeavy
-                    ? "bg-green-50"
-                    : isPassHeavy
-                    ? "bg-red-50"
-                    : ""
-                }`}
-              >
-                <td className="border px-3 py-2 font-medium">{concept}</td>
+      <td className="px-4 py-3 text-center">
+        {data.total}
+      </td>
 
-                <td className="border px-3 py-2 text-green-600 font-semibold">
-                  {data.run}
-                </td>
+      <td className="px-4 py-3 text-center">
+        {data.avgYards}
+      </td>
 
-                <td className="border px-3 py-2 text-red-600 font-semibold">
-                  {data.pass}
-                </td>
-
-                <td className="border px-3 py-2 font-bold text-gray-800">
-                  {data.total}
-                </td>
-              </tr>
-            );
-          })}
+      <td className="px-4 py-3">
+        {data.topSituations?.map(([sit, count]: any) => (
+          <div key={sit}>
+            {sit} ({count})
+          </div>
+        ))}
+      </td>
+    </tr>
+  ))}
         </tbody>
       </table>
     </div>
