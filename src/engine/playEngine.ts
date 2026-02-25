@@ -1,7 +1,8 @@
-// engine/playEngine.ts
-
 /* ================= TYPES ================= */
+import { OffensivePlayLogEntry } from "../types/OffensivePlayLogEntry";
+
 export type PlayType = "run" | "pass";
+export type FieldHash = "left" | "middle" | "right";
 
 export interface Play {
   down: number;
@@ -14,120 +15,161 @@ export interface Play {
   concept: string;
 
   yards: number;
+
+  yardLine: number;
+  hash: FieldHash;
+
+  isTwoPoint: boolean;
+  isGoalToGo: boolean;
 }
 
 /* ================= HELPERS ================= */
-const pct = (value: number, total: number) => (total ? (value / total) * 100 : 0);
-const avg = (value: number, total: number) => (total ? value / total : 0);
 
-const isSuccessful = (p: Play) => {
-  if (p.down === 1) return p.yards >= 4;
-  if (p.down === 2) return p.yards >= p.distance * 0.5;
-  if (p.down >= 3) return p.yards >= p.distance;
-  return false;
-};
+function parseNumber(val: any): number {
+  const n = Number(val);
+  return isNaN(n) ? 0 : n;
+}
 
-const getDistanceBucket = (distance: number) => {
-  if (distance <= 3) return "1-3";
-  if (distance <= 7) return "4-7";
-  return "8+";
-};
+function parseYards(val: any): number {
+  if (typeof val === "number") return val;
+  if (!val) return 0;
 
-const getSituationKey = (p: Play) => {
-  if (p.down === 1 && p.distance === 10) return "1st & 10";
-  if ([2, 3, 4].includes(p.down)) return `${p.down}th & ${getDistanceBucket(p.distance)}`;
-  return "other";
-};
+  const str = String(val).toLowerCase();
 
-/* ================= MAIN ENGINE ================= */
-export function buildEngine(playData: Play[]) {
+  if (str.includes("loss")) {
+    const num = parseInt(str.replace(/[^0-9]/g, ""));
+    return isNaN(num) ? 0 : -num;
+  }
+
+  const num = parseInt(str.replace(/[^0-9-]/g, ""));
+  return isNaN(num) ? 0 : num;
+}
+
+function parseHash(val: any): FieldHash {
+  if (!val) return "middle";
+
+  const str = String(val).toLowerCase();
+
+  if (str.includes("left")) return "left";
+  if (str.includes("right")) return "right";
+  return "middle";
+}
+
+function detectPlayType(playName: string, raw: string): PlayType {
+  const r = raw.toLowerCase();
+  const n = playName.toLowerCase();
+
+  if (r === "run") return "run";
+  if (r === "pass") return "pass";
+
+  const runKeys = ["zone","dive","draw","counter","sweep","power"];
+  const passKeys = ["screen","slant","fade","out","curl","post"];
+
+  if (runKeys.some(k => n.includes(k))) return "run";
+  if (passKeys.some(k => n.includes(k))) return "pass";
+
+  return "pass";
+}
+
+function isHeaderRow(p: any): boolean {
+  const downVal = p.Down ?? p.down;
+  return downVal === "Down" || downVal === undefined || downVal === null;
+}
+
+/* ================= NORMALIZER ================= */
+function parseYardLine(val: any): number {
+  if (!val) return 50;
+
+  const str = String(val).toLowerCase();
+
+  const num = parseInt(str.replace(/[^0-9]/g, ""));
+  if (isNaN(num)) return 50;
+
+  if (str.includes("opp")) return num;
+  if (str.includes("own")) return 100 - num;
+
+  // fallback
+  return num;
+}
+export function normalizePlay(p: OffensivePlayLogEntry): Play | null {
+  if (isHeaderRow(p)) return null;
+
+  const rawDown = p.Down ?? p.down;
+  const rawDistance = p.Distance ?? p.distance;
+
+  const downStr = String(rawDown).toLowerCase().trim();
+  const distStr = String(rawDistance).toLowerCase().trim();
+
+  const playName = p["Play Name"] ?? p.playName ?? "Unknown";
+
+  const rawType = String(p.Play ?? p.playType ?? "").toLowerCase();
+
+  const yards = parseYards(
+    p["Yardage Gained"] ?? p.yards ?? p.yardageGained
+  );
+
+  const yardLine = parseYardLine(
+    p["Field Position"] ?? p.fieldPosition
+  );
+
+  const hash = parseHash(
+    p["Ball Placement"] ?? p.ballPlacement
+  );
+
+  /* ================= FIXED DETECTION ================= */
+
+  // ✅ 2PT (catch EVERYTHING)
+  const isTwoPoint =
+    downStr.includes("2pt") ||
+    distStr.includes("2pt") ||
+    downStr === "0";
+
+  // ✅ GOAL-TO-GO (must be distance based)
+  const isGoalToGo =
+    !isTwoPoint &&
+    (
+      distStr.includes("goal") ||
+      downStr.includes("goal")
+    );
+
+  // ✅ CLEAN DOWN
+  const down = isTwoPoint ? 0 : parseNumber(rawDown);
+
+  // ✅ CLEAN DISTANCE
+  const distance = isGoalToGo
+    ? 0
+    : parseNumber(rawDistance);
+
   return {
-    formations: buildFormations(playData),
-    situations: buildSituations(playData),
-    concepts: buildConcepts(playData),
+    down,
+    distance,
+
+    formation: p.Formation ?? p.formation ?? "Unknown",
+
+    playName,
+
+    playType:
+      rawType === "run" || rawType === "pass"
+        ? rawType
+        : detectPlayType(playName, rawType),
+
+    concept: p["Play concept"] ?? p.playConcept ?? "other",
+
+    yards,
+
+    yardLine,
+    hash,
+
+    isTwoPoint,
+    isGoalToGo,
   };
 }
+/* ================= CLEAN ================= */
 
-/* ================= FORMATIONS ================= */
-function buildFormations(data: Play[]) {
-  const map: Record<string, any> = {};
-
-  data.forEach((p) => {
-    const key = p.formation || "Unknown";
-    if (!map[key]) map[key] = { total: 0, run: 0, pass: 0, yards: 0, plays: {} };
-    const f = map[key];
-    f.total++;
-    f.yards += p.yards;
-    if (p.playType === "run") f.run++;
-    if (p.playType === "pass") f.pass++;
-    f.plays[p.playName] = (f.plays[p.playName] || 0) + 1;
-  });
-
-  Object.values(map).forEach((f: any) => {
-    f.runPct = pct(f.run, f.total);
-    f.passPct = pct(f.pass, f.total);
-    f.avgYards = avg(f.yards, f.total);
-    f.topPlays = Object.entries(f.plays).sort((a: any, b: any) => b[1] - a[1]).slice(0, 3);
-  });
-
-  return map;
-}
-
-/* ================= SITUATIONS ================= */
-function buildSituations(data: Play[]) {
-  const map: Record<string, any> = {};
-
-  data.forEach((p) => {
-    const key = getSituationKey(p);
-    if (!map[key]) map[key] = { total: 0, run: 0, pass: 0, yards: 0 };
-    const s = map[key];
-    s.total++;
-    s.yards += p.yards;
-    if (p.playType === "run") s.run++;
-    if (p.playType === "pass") s.pass++;
-  });
-
-  Object.values(map).forEach((s: any) => {
-    s.runPct = pct(s.run, s.total);
-    s.passPct = pct(s.pass, s.total);
-    s.avgYards = avg(s.yards, s.total);
-  });
-
-  return map;
-}
-
-/* ================= CONCEPTS ================= */
-function buildConcepts(data: Play[]) {
-  const map: Record<string, any> = {};
-
-  data.forEach((p) => {
-    const key = p.concept || "other";
-    const situation = getSituationKey(p);
-
-    if (!map[key]) {
-      map[key] = {
-        total: 0,
-        yards: 0,
-        situations: {}, // 🔥 NEW
-      };
-    }
-
-    const c = map[key];
-
-    c.total++;
-     c.yards += typeof p.yards === "number" ? p.yards : 0;
-    // 🔥 track situations per concept
-    c.situations[situation] = (c.situations[situation] || 0) + 1;
-  });
-
-  Object.values(map).forEach((c: any) => {
-    c.avgYards = c.total ? Number((c.yards / c.total).toFixed(2)) : 0;
-
-    // 🔥 sort situations (most used first)
-    c.topSituations = Object.entries(c.situations)
-      .sort((a: any, b: any) => b[1] - a[1])
-      .slice(0, 5);
-  });
-
-  return map;
+export function getCleanData(
+  playLog: OffensivePlayLogEntry[]
+): Play[] {
+  return playLog
+    .map(normalizePlay)
+    .filter((p): p is Play => p !== null);
 }

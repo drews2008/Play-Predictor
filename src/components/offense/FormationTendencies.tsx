@@ -1,55 +1,37 @@
-// components/offense/FormationTendencies.tsx
+type Props = {
+  data: Record<string, any>;
+};
 
-import React from "react";
-import { buildFormations } from "../../engine/tendencyEngine";
-import { OffensivePlayLogEntry } from "../../types/OffensivePlayLogEntry";
-
-interface Props {
-  playLog: OffensivePlayLogEntry[];
-}
-
-const FormationTendencies: React.FC<Props> = ({ playLog }) => {
-  const data = buildFormations(playLog);
+export default function FormationTendencies({ data }: Props) {
+  if (!data || Object.keys(data).length === 0) {
+    return <div>No Formation Data</div>;
+  }
 
   return (
-    <div className="p-6 border rounded-xl bg-white shadow">
-      <h3 className="text-xl font-bold mb-4">Formation Tendencies</h3>
+    <div>
+      <h3>Formations</h3>
 
-      <table className="w-full text-sm">
+      <table>
         <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2 text-left">Formation</th>
-            <th className="p-2">Run %</th>
-            <th className="p-2">Pass %</th>
-            <th className="p-2">Avg Yds</th>
-            <th className="p-2">Top Plays</th>
+          <tr>
+            <th>Formation</th>
+            <th>Run %</th>
+            <th>Pass %</th>
+            <th>Avg Yds</th>
           </tr>
         </thead>
 
         <tbody>
-          {Object.entries(data).map(([key, f]: any) => (
-            <tr key={key} className="border-t">
-              <td className="p-2 font-semibold">{key}</td>
-              <td className="p-2 text-center">
-                {Number(f.runPct ?? 0).toFixed(0)}%
-              </td>
-              <td className="p-2 text-center">
-                {Number(f.passPct ?? 0).toFixed(0)}%
-              </td>
-              <td className="p-2 text-center">
-                {Number(f.avgYards ?? 0).toFixed(1)}
-              </td>
-              <td className="p-2 text-center">
-                {f.topPlays
-                  ?.map((p: any) => `${p[0]} (${p[1]})`)
-                  .join(", ") || "-"}
-              </td>
+          {Object.entries(data).map(([formation, f]: any) => (
+            <tr key={formation}>
+              <td>{formation}</td>
+              <td>{f.runPct.toFixed(1)}%</td>
+              <td>{f.passPct.toFixed(1)}%</td>
+              <td>{f.avgYards.toFixed(1)}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
   );
-};
-
-export default FormationTendencies;
+}

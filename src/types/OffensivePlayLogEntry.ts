@@ -1,39 +1,18 @@
-const enum Down {
-  First = 1,
-  Second = 2,
-  Third = 3,
-  Fourth = 4,
-  twopt = "2 pt. Conv.",
-}
-
-const enum Hash {
-  Left = "Left",
-  Middle = "Middle",
-  Right = "Right",
-}
-
-const enum PlayType {
-  Run = "Run",
-  Pass = "Pass",
-  Other = "Other",
-}
-
 export interface OffensivePlayLogEntry {
-  down: Down;
-  distance: number;
-  ballPlacement: Hash;
-  playType?: PlayType;
+  down: number | string;
+  distance: number | string;
 
-  formation: string;
-  playName: string;
+  formation?: string;
+  playName?: string;
 
-  playConcept?: string; // ← ADD THIS
+  playType?: string;
+  playConcept?: string;
 
-  tapeCue?: string;
-  fieldPosition?: number;
-  driveStarter?: boolean;
-  driveNumber?: number;
-  result?: string;
-  yardageGained?: number;
-  notes?: string;
+  yards?: number | string;
+
+  // optional flags
+  isGoalToGo?: boolean;
+
+  // allow CSV flexibility
+  [key: string]: any;
 }

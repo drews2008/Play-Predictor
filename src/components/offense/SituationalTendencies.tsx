@@ -1,15 +1,9 @@
-// components/offense/SituationalTendencies.tsx
+type Props = {
+  data: Record<string, any>;
+};
+const HASHES = ["Left", "Middle", "Right"];
 
-import React from "react";
-import { buildSituations } from "../../engine/tendencyEngine";
-import { OffensivePlayLogEntry } from "../../types/OffensivePlayLogEntry";
-
-interface Props {
-  playLog: OffensivePlayLogEntry[];
-}
-
-// 🔥 Define display order (NOT random object order)
-const ORDER = [
+const BASE_ORDER = [
   "1st & 10",
 
   "2nd & 1-3",
@@ -24,91 +18,49 @@ const ORDER = [
   "4th & 4-7",
   "4th & 8+",
 
-  "2PT", // ✅ Added
+  "Goal-To-Go",
+  "2PT",
 ];
 
-const groupByDown = (data: Record<string, any>) => {
-  const grouped: Record<string, [string, any][]> = {
-    "1st Down": [],
-    "2nd Down": [],
-    "3rd Down": [],
-    "4th Down": [],
-    "2PT": [],
-  };
-
-  ORDER.forEach((key) => {
-    if (!data[key]) return;
-
-    if (key.startsWith("1st")) grouped["1st Down"].push([key, data[key]]);
-    else if (key.startsWith("2nd")) grouped["2nd Down"].push([key, data[key]]);
-    else if (key.startsWith("3rd")) grouped["3rd Down"].push([key, data[key]]);
-    else if (key.startsWith("4th")) grouped["4th Down"].push([key, data[key]]);
-    else if (key === "2PT") grouped["2PT"].push([key, data[key]]);
-  });
-
-  return grouped;
-};
-
-const SituationalTendencies: React.FC<Props> = ({ playLog }) => {
-  const data = buildSituations(playLog);
-  const grouped = groupByDown(data);
+const ORDER = BASE_ORDER.flatMap(situation =>
+  HASHES.map(hash => `${situation} (${hash})`)
+);
+export default function SituationalTendencies({ data }: Props) {
+  if (!data || Object.keys(data).length === 0) {
+    return <div>No Situation Data</div>;
+  }
 
   return (
-    <div className="p-6 border rounded-xl bg-white shadow">
-      <h3 className="text-xl font-bold mb-4">Situational Tendencies</h3>
+    <div>
+      <h3>Situational Tendencies</h3>
 
-      <table className="w-full text-sm">
+      <table>
         <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2 text-left">Situation</th>
-            <th className="p-2">Run %</th>
-            <th className="p-2">Pass %</th>
-            <th className="p-2">Avg Yds</th>
+          <tr>
+            <th>Situation</th>
+            <th>Run %</th>
+            <th>Pass %</th>
+            <th>Avg Yds</th>
           </tr>
         </thead>
 
         <tbody>
-          {Object.values(grouped).every((g) => g.length === 0) ? (
-            <tr>
-              <td colSpan={4} className="p-4 text-center text-gray-500">
-                No data
-              </td>
-            </tr>
-          ) : (
-            Object.entries(grouped).map(([down, situations]) => (
-              <React.Fragment key={down}>
-                
-                {/* 🔥 Section Header */}
-                {situations.length > 0 && (
-                  <tr className="bg-gray-100">
-                    <td colSpan={4} className="p-2 font-bold text-left">
-                      {down}
-                    </td>
-                  </tr>
-                )}
+          {ORDER.map((key) => {
+            const s = data[key];
 
-                {/* Rows */}
-                {situations.map(([key, s]) => (
-                  <tr key={key} className="border-t">
-                    <td className="p-2 pl-6 font-medium">{key}</td>
-                    <td className="p-2 text-center">
-                      {Number(s.runPct ?? 0).toFixed(0)}%
-                    </td>
-                    <td className="p-2 text-center">
-                      {Number(s.passPct ?? 0).toFixed(0)}%
-                    </td>
-                    <td className="p-2 text-center">
-                      {Number(s.avgYards ?? 0).toFixed(1)}
-                    </td>
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))
-          )}
+            if (!s) return null;
+
+            return (
+              <tr key={key}>
+                <td>{key}</td>
+                <td>{s.runPct.toFixed(1)}%</td>
+                <td>{s.passPct.toFixed(1)}%</td>
+                <td>{s.avgYards.toFixed(1)}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
-};
-
-export default SituationalTendencies;
+}

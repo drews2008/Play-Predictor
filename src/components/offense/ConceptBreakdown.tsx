@@ -1,52 +1,41 @@
-import React from "react";
-import { OffensivePlayLogEntry } from "../../types/OffensivePlayLogEntry";
-import { buildConcepts } from "../../engine/tendencyEngine";
+type Props = {
+  data: Record<string, any>;
+};
 
-interface Props {
-  playLog: OffensivePlayLogEntry[];
-}
-
-const ConceptBreakdown: React.FC<Props> = ({ playLog }) => {
-  const concepts = buildConcepts(playLog);
+export default function ConceptBreakdown({ data }: Props) {
+  if (!data || Object.keys(data).length === 0) {
+    return <div>No Concept Data</div>;
+  }
 
   return (
-    <div className="mt-6 p-6 rounded-xl border border-gray-300 bg-white shadow-md">
-      <h3 className="text-xl font-bold mb-4">Concept Breakdown</h3>
-      <table className="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
-  <thead>
-  <tr className="bg-blue-700 text-white">
-    <th className="px-4 py-3 text-left">Concept</th>
-    <th className="px-4 py-3 text-center">Total</th>
-    <th className="px-4 py-3 text-center">Avg Yards</th>
-    <th className="px-4 py-3 text-left">Top Situations</th>
-  </tr>
-</thead>
+    <div>
+      <h3>Concepts</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Total</th>
+            <th>Avg Yds</th>
+            <th>Top Situations</th>
+          </tr>
+        </thead>
+
         <tbody>
-  {Object.entries(concepts).map(([concept, data]: any, idx) => (
-    <tr key={concept} className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-      <td className="px-4 py-3 font-semibold">{concept}</td>
-
-      <td className="px-4 py-3 text-center">
-        {data.total}
-      </td>
-
-      <td className="px-4 py-3 text-center">
-        {data.avgYards}
-      </td>
-
-      <td className="px-4 py-3">
-        {data.topSituations?.map(([sit, count]: any) => (
-          <div key={sit}>
-            {sit} ({count})
-          </div>
-        ))}
-      </td>
-    </tr>
-  ))}
+          {Object.entries(data).map(([concept, c]: any) => (
+            <tr key={concept}>
+              <td>{concept}</td>
+              <td>{c.total}</td>
+              <td>{c.avgYards.toFixed(1)}</td>
+              <td>
+                {c.topSituations
+                  ?.map((s: any) => `${s[0]} (${s[1]})`)
+                  .join(", ")}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
   );
-};
-
-export default ConceptBreakdown;
+}
