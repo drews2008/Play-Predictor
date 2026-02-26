@@ -1,38 +1,25 @@
-type Props = {
-  data: Record<string, any>;
+type SituationStat = {
+  runPct: number;
+  passPct: number;
+  avgYards: number;
 };
-const HASHES = ["Left", "Middle", "Right"];
 
-const BASE_ORDER = [
-  "1st & 10",
+type SituationGroup = Record<string, SituationStat>;
 
-  "2nd & 1-3",
-  "2nd & 4-7",
-  "2nd & 8+",
+type Props = {
+  data: {
+    standard: SituationGroup;
+    goalToGo: SituationGroup;
+    twoPoint: SituationGroup;
+  };
+};
 
-  "3rd & 1-3",
-  "3rd & 4-7",
-  "3rd & 8+",
-
-  "4th & 1-3",
-  "4th & 4-7",
-  "4th & 8+",
-
-  "Goal-To-Go",
-  "2PT",
-];
-
-const ORDER = BASE_ORDER.flatMap(situation =>
-  HASHES.map(hash => `${situation} (${hash})`)
-);
-export default function SituationalTendencies({ data }: Props) {
-  if (!data || Object.keys(data).length === 0) {
-    return <div>No Situation Data</div>;
-  }
+function renderTable(title: string, group: SituationGroup) {
+  if (!group || Object.keys(group).length === 0) return null;
 
   return (
-    <div>
-      <h3>Situational Tendencies</h3>
+    <div style={{ marginBottom: "20px" }}>
+      <h4>{title}</h4>
 
       <table>
         <thead>
@@ -45,22 +32,35 @@ export default function SituationalTendencies({ data }: Props) {
         </thead>
 
         <tbody>
-          {ORDER.map((key) => {
-            const s = data[key];
-
-            if (!s) return null;
-
-            return (
-              <tr key={key}>
-                <td>{key}</td>
-                <td>{s.runPct.toFixed(1)}%</td>
-                <td>{s.passPct.toFixed(1)}%</td>
-                <td>{s.avgYards.toFixed(1)}</td>
-              </tr>
-            );
-          })}
+          {Object.entries(group).map(([key, s]) => (
+            <tr key={key}>
+              <td>{key}</td>
+              <td>{s.runPct.toFixed(1)}%</td>
+              <td>{s.passPct.toFixed(1)}%</td>
+              <td>{s.avgYards.toFixed(1)}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+export default function SituationalTendencies({ data }: Props) {
+  if (!data) return <div>No Situation Data</div>;
+
+  return (
+    <div>
+      <h3>Situational Tendencies</h3>
+
+      {/* STANDARD */}
+      {renderTable("Standard Situations", data.standard)}
+
+      {/* GOAL TO GO */}
+      {renderTable("Goal-To-Go", data.goalToGo)}
+
+      {/* 2 POINT */}
+      {renderTable("2-Point", data.twoPoint)}
     </div>
   );
 }

@@ -14,11 +14,16 @@ const getDistanceBucket = (d: number) => {
 
 const getSituationKey = (p: Play) => {
   // ✅ 2PT FIRST (always isolated)
-  if (p.isTwoPoint) return "2PT";
+    if (p.isTwoPoint) return "2pt";
+
 
   // ✅ GOAL-TO-GO
-  if (p.isGoalToGo) return "Goal-To-Go";
 
+  if (p.isGoalToGo) {
+    if (p.distance <= 3) return "GoalToGo 1-3";
+    if (p.distance <= 6) return "GoalToGo 4-6";
+    return "GoalToGo 7+";
+  }
   if (p.down === 1 && p.distance === 10) return "1st & 10";
 
   if (p.down === 2) return `2nd & ${getDistanceBucket(p.distance)}`;
@@ -80,54 +85,82 @@ export function buildFormations(playLog: OffensivePlayLogEntry[]) {
 
   return map;
 }
-
-/* ================= SITUATIONS ================= */
 export function buildSituations(playLog: OffensivePlayLogEntry[]) {
-  const data = getCleanData(playLog);
-  const map: Record<string, any> = {};
+  const plays = getCleanData(playLog);
 
-  data.forEach(p => {
-    // ✅ PRIORITY ORDER (DO NOT CHANGE)
-    let situation = "";
+  const standard: Record<string, Play[]> = {};
+  const goalToGo: Record<string, Play[]> = {};
+  const twoPoint: Record<string, Play[]> = {};
 
-    if (p.isTwoPoint) {
-      situation = "2PT";
-    } else if (p.isGoalToGo) {
-      situation = "Goal-To-Go";
+  plays.forEach((play) => {
+    // ✅ 1. TWO POINT
+    if (play.isTwoPoint) {
+      const key = `2PT (${play.hash})`;
+      if (!twoPoint[key]) twoPoint[key] = [];
+      twoPoint[key].push(play);
+      return;
+    }
+
+    // ✅ 2. GOAL TO GO
+    if (play.isGoalToGo) {
+      const bucket =
+        play.distance <= 3 ? "1-3" :
+        play.distance <= 6 ? "4-6" :
+        "7+";
+
+      const key = `${play.down} & Goal (${bucket}) (${play.hash})`;
+
+      if (!goalToGo[key]) goalToGo[key] = [];
+      goalToGo[key].push(play);
+      return;
+    }
+
+    // ✅ 3. NORMAL
+    let key = "";
+
+    if (play.down === 1 && play.distance === 10) {
+      key = `1st & 10 (${play.hash})`;
     } else {
-      situation = getSituationKey(p);
+      const bucket =
+        play.distance <= 3 ? "1-3" :
+        play.distance <= 7 ? "4-7" :
+        "8+";
+
+      key = `${play.down} & ${bucket} (${play.hash})`;
     }
 
-    // ✅ ADD HASH TO KEY
-    const hashLabel =
-      p.hash === "left"
-        ? "Left"
-        : p.hash === "right"
-        ? "Right"
-        : "Middle";
-
-    const key = `${situation} (${hashLabel})`;
-
-    if (!map[key]) {
-      map[key] = { total: 0, run: 0, pass: 0, yards: 0 };
-    }
-
-    const s = map[key];
-
-    s.total++;
-    s.yards += p.yards;
-    p.playType === "run" ? s.run++ : s.pass++;
+    if (!standard[key]) standard[key] = [];
+    standard[key].push(play);
   });
 
-  Object.values(map).forEach((s: any) => {
-    s.runPct = pct(s.run, s.total);
-    s.passPct = pct(s.pass, s.total);
-    s.avgYards = avg(s.yards, s.total);
-  });
+  function format(map: Record<string, Play[]>) {
+    return Object.fromEntries(
+      Object.entries(map).map(([key, group]) => {
+        const run = group.filter(p => p.playType === "run").length;
+        const pass = group.filter(p => p.playType === "pass").length;
+        const total = group.length;
 
-  return map;
-}
-/* ================= CONCEPTS ================= */
+        return [
+          key,
+          {
+            runPct: pct(run, total),
+            passPct: pct(pass, total),
+            avgYards: avg(
+              group.reduce((sum, p) => sum + p.yards, 0),
+              total
+            ),
+          },
+        ];
+      })
+    );
+  }
+
+  return {
+    standard: format(standard),
+    goalToGo: format(goalToGo),
+    twoPoint: format(twoPoint),
+  };
+}/* ================= CONCEPTS ================= */
 
 export function buildConcepts(playLog: OffensivePlayLogEntry[]) {
   const data = getCleanData(playLog);
