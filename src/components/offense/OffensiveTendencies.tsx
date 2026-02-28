@@ -5,6 +5,7 @@ import { buildOffensiveDashboard } from "../../engine/tendencyEngine";
 import FormationTendencies from "./FormationTendencies";
 import SituationalTendencies from "./SituationalTendencies";
 import ConceptBreakdown from "./ConceptBreakdown";
+import AIInsights from "./AIInsights";
 
 type Props = {
   playLog: OffensivePlayLogEntry[];
@@ -40,6 +41,7 @@ export default function OffensiveDashboard({ playLog }: Props) {
 
   return (
     <div className="space-y-4">
+      <AIInsights data={data} />
       <h2 className="text-xl font-semibold text-blue-900">Offensive Tendency Dashboard</h2>
 
       <div className="border-b border-blue-200">
