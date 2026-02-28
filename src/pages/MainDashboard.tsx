@@ -16,9 +16,8 @@ const DashboardButton: React.FC<{ to: string; text: string }> = ({ to, text }) =
 
 const MainDashboard: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-700 to-blue-900 flex items-center justify-center p-6">
-      {/* White card container */}
-      <div className="bg-white rounded-xl shadow-2xl p-10 w-full max-w-4xl text-center border border-blue-100">
+    <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-700 to-blue-900 p-6 md:p-10">
+      <div className="mx-auto w-full max-w-4xl rounded-xl border border-blue-100 bg-white p-8 text-center shadow-2xl md:p-10">
         <h1 className="text-4xl font-extrabold mb-8 text-blue-900">Main Dashboard</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -26,12 +25,11 @@ const MainDashboard: React.FC = () => {
           <DashboardButton to="/defense" text="Defensive Dashboard" />
           <DashboardButton to="/playdrawing" text="Play Drawing Tab" />
         </div>
-      </div>
 
-      {/* Footer below card */}
-      <footer className="absolute bottom-4 text-white text-sm w-full text-center">
-        &copy; {new Date().getFullYear()} PlayPredictor
-      </footer>
+        <footer className="mt-8 text-sm text-blue-800/80">
+          &copy; {new Date().getFullYear()} PlayPredictor
+        </footer>
+      </div>
     </div>
   );
 };
