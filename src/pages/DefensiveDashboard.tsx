@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import DefensiveTendencies from "../components/defense/DefensiveTendencies";
 import { Card } from "../components/ui/card";
 import * as XLSX from "xlsx";
+import BackButton from "../components/ui/Button";
 
 export default function MainDashboard() {
   const [defensiveData, setDefensiveData] = useState<any[]>([]);
@@ -56,7 +57,8 @@ export default function MainDashboard() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
+      <BackButton />
       <h1 className="text-2xl font-bold">Defensive Dashboard</h1>
 
       <Card className="p-4">

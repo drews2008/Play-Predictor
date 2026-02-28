@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import OffensivePlayUploader from "../components/playlog/OffensivePlayUploader";
 import OffensiveTendencies from "../components/offense/OffensiveTendencies";
 import { OffensivePlayLogEntry } from "../types/OffensivePlayLogEntry";
+import BackButton from "../components/ui/Button";
 
 const OffensiveDashboard: React.FC = () => {
   const [playLog, setPlayLog] = useState<OffensivePlayLogEntry[]>([]);
   
   return (
     <div className="p-6">
+      <div className="mb-4">
+        <BackButton />
+      </div>
       <h2 className="text-2xl font-bold mb-4 text-blue-700">Offensive Dashboard</h2>
       <p className="text-blue-900/80 mb-4">Upload your play log and switch between tendency tabs.</p>
 

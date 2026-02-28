@@ -5,7 +5,6 @@ import {
   Route,
   Navigate,
   Link,
-  useLocation,
 } from "react-router-dom";
 import MainDashboard from "./pages/MainDashboard";
 import OffensiveDashboard from "./pages/OffensiveDashboard";
@@ -13,9 +12,6 @@ import DefensiveDashboard from "./pages/DefensiveDashboard";
 import PlayDrawing from "./pages/PlayDrawingPage";
 
 const AppShell: React.FC = () => {
-  const location = useLocation();
-  const showBackToMain = location.pathname !== "/";
-
   return (
     <div className="min-h-screen bg-blue-50/80 text-blue-950">
       <nav className="sticky top-0 z-10 border-b border-blue-200/70 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white shadow-lg backdrop-blur">
@@ -31,17 +27,6 @@ const AppShell: React.FC = () => {
       </nav>
 
       <main className="mx-auto w-full max-w-6xl p-6">
-        {showBackToMain ? (
-          <div className="mb-4">
-            <Link
-              to="/"
-              className="inline-flex items-center rounded-full border border-blue-200 bg-white px-4 py-2 text-sm font-medium text-blue-800 shadow-sm transition hover:bg-blue-50"
-            >
-              ← Back to Main Dashboard
-            </Link>
-          </div>
-        ) : null}
-
         <div className="rounded-2xl border border-blue-100 bg-white/80 p-4 shadow-sm backdrop-blur-sm md:p-6">
           <Routes>
             <Route path="/" element={<MainDashboard />} />
