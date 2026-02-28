@@ -8,9 +8,8 @@ const OffensiveDashboard: React.FC = () => {
   
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4 text-blue-700">
-        Offensive Tendency Dashboard
-      </h2>
+      <h2 className="text-2xl font-bold mb-4 text-blue-700">Offensive Dashboard</h2>
+      <p className="text-blue-900/80 mb-4">Upload your play log and switch between tendency tabs.</p>
 
       <OffensivePlayUploader onDataLoaded={setPlayLog} />
 
