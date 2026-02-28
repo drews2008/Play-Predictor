@@ -76,6 +76,14 @@ function isHeaderRow(p: any): boolean {
   return downVal === "Down" || downVal === undefined || downVal === null;
 }
 
+function isGoalToGoDistanceValue(val: any): boolean {
+  const distStr = String(val ?? "").toLowerCase().trim();
+
+  // Handles values like "8-goal", "8 - goal", or "8-"
+  // where the distance cell indicates goal-to-go formatting.
+  return /^\d+\s*-\s*(goal(?:\s*to\s*go)?|)$/.test(distStr);
+}
+
 /* ================= NORMALIZER ================= */
 function parseYardLine(val: any): number {
   if (!val) return 50;
@@ -129,7 +137,8 @@ export function normalizePlay(p: OffensivePlayLogEntry): Play | null {
     !isTwoPoint &&
     (
       distStr.includes("goal") ||
-      downStr.includes("goal")
+      downStr.includes("goal") ||
+      isGoalToGoDistanceValue(rawDistance)
     );
 
   // ✅ CLEAN DOWN
