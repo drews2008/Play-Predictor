@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PlayPredictor: Pull latest main",
+      "type": "shell",
+      "command": "git checkout main && git pull origin main",
+      "problemMatcher": []
+    },
+    {
+      "label": "PlayPredictor: Pull latest + Run dev",
+      "type": "shell",
+      "dependsOn": [
+        "PlayPredictor: Pull latest main"
+      ],
+      "command": "npm run dev",
+      "problemMatcher": []
+    }
+  ]
+}

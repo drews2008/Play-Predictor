@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pull:main": "git pull origin main",
+    "dev:latest": "npm run pull:main && npm run dev"
   },
   "dependencies": {
     "chart.js": "^4.5.0",
