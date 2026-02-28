@@ -22,8 +22,8 @@ const MainDashboard: React.FC = () => {
         <h1 className="text-4xl font-extrabold mb-8 text-blue-900">Main Dashboard</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <DashboardButton to="/tendency" text="Offensive Dashboard" />
-          <DashboardButton to="/defensivetendencies" text="Defensive Dashboard" />
+          <DashboardButton to="/offense" text="Offensive Dashboard" />
+          <DashboardButton to="/defense" text="Defensive Dashboard" />
           <DashboardButton to="/playdrawing" text="Play Drawing Tab" />
         </div>
       </div>
