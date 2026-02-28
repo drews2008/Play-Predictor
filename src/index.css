@@ -1,16 +1,28 @@
 /* src/index.css */
 :root {
-  font-family: system-ui, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   background-color: #eff6ff;
   color: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  background: radial-gradient(circle at top, #dbeafe 0%, #eff6ff 45%, #f8fbff 100%);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+::selection {
+  background: #bfdbfe;
+  color: #1e3a8a;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
