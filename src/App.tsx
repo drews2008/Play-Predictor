@@ -8,7 +8,7 @@ import PlayDrawing from "./pages/PlayDrawingPage";
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100 text-gray-900">
+      <div className="min-h-screen bg-blue-100 text-gray-900">
         <nav className="bg-blue-700 text-white px-4 py-3 flex items-center justify-between shadow-md">
           <h1 className="text-xl font-bold">PlayPredictor Dashboard</h1>
           <div className="space-x-4">
