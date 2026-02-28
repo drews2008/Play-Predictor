@@ -8,14 +8,14 @@ import PlayDrawing from "./pages/PlayDrawingPage";
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-blue-100 text-gray-900">
-        <nav className="bg-blue-700 text-white px-4 py-3 flex items-center justify-between shadow-md">
+      <div className="min-h-screen bg-blue-50 text-blue-950">
+        <nav className="bg-blue-800 text-white px-4 py-3 flex items-center justify-between shadow-md border-b border-blue-700">
           <h1 className="text-xl font-bold">PlayPredictor Dashboard</h1>
           <div className="space-x-4">
-            <Link to="/" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Main</Link>
-            <Link to="/offense" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Offensive</Link>
-            <Link to="/defense" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Defensive</Link>
-            <Link to="/playdrawing" className="hover:bg-blue-500 px-3 py-2 rounded-md transition">Play Drawing</Link>
+            <Link to="/" className="hover:bg-blue-600 px-3 py-2 rounded-md transition">Main</Link>
+            <Link to="/offense" className="hover:bg-blue-600 px-3 py-2 rounded-md transition">Offensive</Link>
+            <Link to="/defense" className="hover:bg-blue-600 px-3 py-2 rounded-md transition">Defensive</Link>
+            <Link to="/playdrawing" className="hover:bg-blue-600 px-3 py-2 rounded-md transition">Play Drawing</Link>
           </div>
         </nav>
 

@@ -1,13 +1,15 @@
 /* src/index.css */
 :root {
   font-family: system-ui, sans-serif;
-  background-color: #f5f5f5;
-  color: #222;
+  background-color: #eff6ff;
+  color: #0f172a;
 }
 
 body {
   margin: 0;
   padding: 0;
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  min-height: 100vh;
 }
 @tailwind base;
 @tailwind components;
