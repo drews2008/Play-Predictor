@@ -6,7 +6,7 @@ export default function BackButton() {
   return (
     <button
       onClick={() => navigate("/")}
-      className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
+      className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 border border-blue-500"
     >
       ← Back to Dashboard
     </button>
