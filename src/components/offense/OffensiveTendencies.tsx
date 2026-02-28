@@ -11,9 +11,10 @@ type Props = {
   playLog: OffensivePlayLogEntry[];
 };
 
-type TabId = "formations" | "situations" | "concepts";
+type TabId = "insights" | "formations" | "situations" | "concepts";
 
 const TABS: { id: TabId; label: string }[] = [
+  { id: "insights", label: "AI Insights" },
   { id: "formations", label: "Formations" },
   { id: "situations", label: "Situations" },
   { id: "concepts", label: "Concepts" },
@@ -21,9 +22,13 @@ const TABS: { id: TabId; label: string }[] = [
 
 export default function OffensiveDashboard({ playLog }: Props) {
   const data = buildOffensiveDashboard(playLog);
-  const [activeTab, setActiveTab] = useState<TabId>("formations");
+  const [activeTab, setActiveTab] = useState<TabId>("insights");
 
   const tabContent = useMemo(() => {
+    if (activeTab === "insights") {
+      return <AIInsights data={data} />;
+    }
+
     if (activeTab === "situations") {
       return <SituationalTendencies data={data.situations} />;
     }
@@ -33,7 +38,7 @@ export default function OffensiveDashboard({ playLog }: Props) {
     }
 
     return <FormationTendencies data={data.formations} />;
-  }, [activeTab, data.concepts, data.formations, data.situations]);
+  }, [activeTab, data]);
 
   if (!playLog || playLog.length === 0) {
     return <div>No Data</div>;
@@ -41,7 +46,6 @@ export default function OffensiveDashboard({ playLog }: Props) {
 
   return (
     <div className="space-y-4">
-      <AIInsights data={data} />
       <h2 className="text-xl font-semibold text-blue-900">Offensive Tendency Dashboard</h2>
 
       <div className="border-b border-blue-200">
@@ -75,7 +79,7 @@ export default function OffensiveDashboard({ playLog }: Props) {
         role="tabpanel"
         id={`offense-tab-${activeTab}`}
         aria-labelledby={`offense-tab-button-${activeTab}`}
-        className="bg-white rounded-lg border border-blue-100 shadow-sm p-4"
+        className="rounded-lg border border-blue-100 bg-white p-4 shadow-sm"
       >
         {tabContent}
       </section>
